@@ -5,13 +5,16 @@ from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.indexes import VectorstoreIndexCreator
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_huggingface import HuggingFaceEndpoint
+from dotenv import load_dotenv
+import os
 
 class RAGPDFBot:
 
     def __init__(self):
+        load_dotenv()
         self.file_path=""
         self.user_input=""
-        self.sec_id="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"
+        self.sec_id=os.getenv("HUGGINGFACE_ACCESS_TOKEN")
         self.repo_id = "meta-llama/Meta-Llama-3-8B-Instruct"
     
     def build_vectordb(self,chunk_size,overlap,file_path):
@@ -46,7 +49,7 @@ class RAGPDFBot:
             """
             self.prompt = PromptTemplate(template=template,input_variables=["question"])
         else:
-            template="""Dont't just repeat  the following context, use it in combination with your knowledge to improve just your answer to the question without any extra stuff and give a short answer if its a one word just give one word answer,dont give any extra question n answers just stick to the point: {context}
+            template="""Your primary goal is to provide a concise, accurate, short, and contextually informed response to the question, integrating both the context and your own knowledge seamlessly : {context}
             Question: {question}
             """
             self.prompt = PromptTemplate(template=template,input_variables=["context","question"]).partial(context=context)
