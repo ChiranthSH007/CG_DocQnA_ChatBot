@@ -49,9 +49,11 @@ class RAGPDFBot:
             """
             self.prompt = PromptTemplate(template=template,input_variables=["question"])
         else:
-            template="""Your primary goal is to provide a concise, accurate, short, and contextually informed response to the question, integrating both the context and your own knowledge seamlessly : {context}
-            Question: {question}
-            """
+            template="""
+                You are an assistant for question-answering tasks. Use the following pieces of retrieved context to answer the question. If you don't know the answer, just say that you don't know. Use three sentences maximum and keep the answer concise.
+                {context}
+                Answer the following question:  
+                {question}"""
             self.prompt = PromptTemplate(template=template,input_variables=["context","question"]).partial(context=context)
 
     def inference(self):
