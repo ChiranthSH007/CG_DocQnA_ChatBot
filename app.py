@@ -52,7 +52,7 @@ with col1:
     if uploaded_file is not None:
         st.write("File uploaded successfully!")
         # st.write(f"File name: {uploaded_file.__dict__}")
-        save_dir = "DocumentQnAChatBot/files"  # You can specify any directory
+        save_dir = "DocumentQnAChatBot/"  # You can specify any directory
         
         # Ensure the directory exists
         if not os.path.exists(save_dir):

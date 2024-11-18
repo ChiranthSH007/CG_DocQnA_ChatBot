@@ -15,7 +15,7 @@ class RAGPDFBot:
         self.file_path=""
         self.user_input=""
         self.sec_id=os.getenv("HUGGINGFACE_ACCESS_TOKEN")
-        self.repo_id = "meta-llama/Meta-Llama-3-8B-Instruct"
+        self.repo_id = "mistralai/Mixtral-8x7B-Instruct-v0.1"
     
     def build_vectordb(self,chunk_size,overlap,file_path):
         loader = PyPDFLoader(file_path=file_path)
@@ -54,6 +54,10 @@ class RAGPDFBot:
                 {context}
                 Answer the following question:  
                 {question}"""
+            # """Dont't just repeat  the following context, use it in conbination with your knowledge to improve your answer to the question and don't deviate from the question: {context}
+            # Question: {question}
+            # """
+            
             self.prompt = PromptTemplate(template=template,input_variables=["context","question"]).partial(context=context)
 
     def inference(self):
