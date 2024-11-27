@@ -30,7 +30,8 @@ class RAGPDFBot:
             max_length=128,
             temperature=0.5,
             huggingfacehub_api_token=self.sec_id,
-            callbacks=callbacks
+            callbacks=callbacks,
+            verbose=True
         )
         
     def retrieval(self,user_input,top_k=1,context_verbosity = False,rag_off=False):
@@ -43,22 +44,32 @@ class RAGPDFBot:
             print(f"Retrieving information related to your question...")
             print(f"Found this content which is most similar to your question:{context}")
 
-        if rag_off:
-            template = """Question: {question}
-            Answer: This is the response:
+
+
+        template="""Context:{context}
+
+            Instructions for the LLM:
+                1.Based on the provided context, answer the question in a precise and accurate manner.
+                2.If the question is directly related to the context, provide a clear and concise response.
+                3.Ensure the answer does not exceed 3 lines.
+                4.If the question is unrelated to the context, respond with "I don't know."
+                5.Avoid any irrelevant or nonsensical information in the answer.
+
+                Question:
+                {question}
             """
-            self.prompt = PromptTemplate(template=template,input_variables=["question"])
-        else:
-            template="""
-                You are an assistant for question-answering tasks. Use the following pieces of retrieved context to answer the question. If you don't know the answer, just say that you don't know. Use three sentences maximum and keep the answer concise.
-                {context}
-                Answer the following question:  
-                {question}"""
+        
+        
+        # """
+        #         You are an assistant for question-answering tasks. Use the following context to answer the question and the answer should not be outside the context or with your knowledge. If the question is not realted to the context, just say that you don't know as the response. Use three sentences maximum and keep the answer concise.
+        #         {context}
+        #         Answer the following question:  
+        #         {question}"""
             # """Dont't just repeat  the following context, use it in conbination with your knowledge to improve your answer to the question and don't deviate from the question: {context}
             # Question: {question}
             # """
             
-            self.prompt = PromptTemplate(template=template,input_variables=["context","question"]).partial(context=context)
+        self.prompt = PromptTemplate(template=template,input_variables=["context","question"]).partial(context=context)
 
     def inference(self):
         if self.context_verbosity:
@@ -67,6 +78,5 @@ class RAGPDFBot:
         llm_chain = self.prompt | self.llm
         print(f"Processing the information...\n")
         response =llm_chain.invoke({"question": self.user_input})
-
+        print(response)
         return response
-
