@@ -1,14 +1,10 @@
 langchain
-# pygpt4all
-# gpt4all
 transformers
-# tiktoken
 chromadb
 sentence_transformers
 langchain-huggingface
 accelerate
 bitsandbytes
 huggingface_hub
-requests
 langchain-community
 streamlit

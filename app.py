@@ -24,14 +24,13 @@ def initialize_model(filePath):
     top_k = 2
     chunk_size = 500
     overlap = 50
-    threads = 64
-    max_tokens = 50
+    max_length = 128
     # rag_off = rag_off_checkbox.value
     temp = 0.7
     model_loaded = False
     if model_loaded==False:
         st.write("Loading Model...")
-        bot.load_model(n_threads=threads, max_tokens=max_tokens, repeat_penalty=1.50, n_batch=threads, top_k=top_k, temp=temp)
+        bot.load_model(max_length=max_length, repeat_penalty=1.50, top_k=top_k, temp=temp)
         model_loaded=True
         #build the vector database
         st.write("Building vector DB...")
@@ -40,8 +39,8 @@ def initialize_model(filePath):
 
 
 
-def retrive(input,rag_off=False):
-    bot.retrieval(user_input = input, rag_off =rag_off )
+def retrive(input):
+    bot.retrieval(user_input = input )
     return bot.inference()
 
 
@@ -51,7 +50,6 @@ with col1:
     uploaded_file = st.file_uploader("Choose a file", type=["txt", "pdf"])
     if uploaded_file is not None:
         st.write("File uploaded successfully!")
-        # st.write(f"File name: {uploaded_file.__dict__}")
         save_dir = "DocumentQnAChatBot/"  # You can specify any directory
         
         # Ensure the directory exists
@@ -63,9 +61,6 @@ with col1:
         
         with open(file_path, "wb") as f:
             f.write(uploaded_file.getbuffer())  # Save the file as bytes
-        
-        # Display the saved file's directory
-        # st.write(f"File saved to: {file_path}")
         
         # Optionally, you can also show the absolute path of the saved file
         abs_file_path = os.path.abspath(file_path)

@@ -22,29 +22,25 @@ class RAGPDFBot:
         text_splitter = RecursiveCharacterTextSplitter(chunk_size=chunk_size,chunk_overlap=overlap)
         self.index = VectorstoreIndexCreator(embedding=HuggingFaceEmbeddings(),text_splitter=text_splitter).from_loaders([loader])
 
-    def load_model(self,n_threads,max_tokens,repeat_penalty,n_batch,top_k,temp):
+    def load_model(self,max_length,repeat_penalty,top_k,temp):
         callbacks = [StreamingStdOutCallbackHandler()]
 
         self.llm = HuggingFaceEndpoint(
             repo_id=self.repo_id,
-            max_length=128,
-            temperature=0.5,
+            max_length=max_length,
+            temperature=temp,
             huggingfacehub_api_token=self.sec_id,
             callbacks=callbacks,
-            verbose=True
+            verbose=True,
+            repetition_penalty=repeat_penalty,
+            top_k=top_k
         )
         
-    def retrieval(self,user_input,top_k=1,context_verbosity = False,rag_off=False):
+    def retrieval(self,user_input,top_k=1,context_verbosity = False):
         self.user_input = user_input
         self.context_verbosity = context_verbosity
         result = self.index.vectorstore.similarity_search(self.user_input,k=top_k)
         context = "\n".join([document.page_content for document in result])
-
-        if self.context_verbosity:
-            print(f"Retrieving information related to your question...")
-            print(f"Found this content which is most similar to your question:{context}")
-
-
 
         template="""Context:{context}
 
@@ -58,17 +54,6 @@ class RAGPDFBot:
                 Question:
                 {question}
             """
-        
-        
-        # """
-        #         You are an assistant for question-answering tasks. Use the following context to answer the question and the answer should not be outside the context or with your knowledge. If the question is not realted to the context, just say that you don't know as the response. Use three sentences maximum and keep the answer concise.
-        #         {context}
-        #         Answer the following question:  
-        #         {question}"""
-            # """Dont't just repeat  the following context, use it in conbination with your knowledge to improve your answer to the question and don't deviate from the question: {context}
-            # Question: {question}
-            # """
-            
         self.prompt = PromptTemplate(template=template,input_variables=["context","question"]).partial(context=context)
 
     def inference(self):
